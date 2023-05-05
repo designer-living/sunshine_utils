@@ -2,6 +2,10 @@
 
 Sunshine Utils offers some useful utils for using with Sunshine / Moonlight / Playnite game streaming.
 
+If this helps you please consider buying me a coffee as a token of appreciation.
+
+<a href="https://www.buymeacoffee.com/githubfoxy82" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
 1. `resolution_change` - a Windows utility to change the screen resolution before a gaming session and reset it after
 
 ## resolution_change
