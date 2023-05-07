@@ -12,10 +12,10 @@ If this helps you please consider buying me a coffee as a token of appreciation.
 
 ### Basic setup
 
-1. Copy `resolution_change.exe` to a folder on your computer - I use the sunshine folder
+1. Copy `resolution_change.exe` to a folder on your computer - I use `C:\Program Files\sunshine_utils`
 2. In Sunshine Add a "Command Perparations" 
-   1. In the "Do" box set the resolution you want e.g. `C:\Program Files\Sunshine\resolution_change.exe -p 1080p`
-   2. In the "Undo" box to reset the resolution: `C:\Program Files\Sunshine\resolution_change.exe -r`
+   1. In the "Do" box set the resolution you want e.g. `C:\Program Files\sunshine_utils\resolution_change.exe -p 1080p`
+   2. In the "Undo" box to reset the resolution: `C:\Program Files\sunshine_utils\resolution_change.exe -r`
 3. If using this with Playnite use the following in the "Command" for Playnite `"C:\<PLAYNITE_FOLDER>\Playnite.FullscreenApp.exe" --hidesplashscreen`
 
 ![](docs/static/playnite_setup.png)
