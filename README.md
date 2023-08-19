@@ -66,7 +66,7 @@ Not all of these have been tested please raise an issue if you find any.
 
 ## Development
 
-This is a Windows based utilities so developement needs to be done on Windows.
+This is a Windows based utilities so development needs to be done on Windows.
 
 ### Developer Dependencies
 1. Install [Python 3.11](https://www.python.org/) for Windows, ensuring that you select "Add Python to PATH" during installation.
@@ -83,7 +83,7 @@ This is a Windows based utilities so developement needs to be done on Windows.
 7. When finished to deactive the virtual env `.\venv\Scripts\deactivate.bat`
 
 ### To Build the exe
-1. Activate the venv as above (and ensure you have installed the dependenices)
+1. Activate the venv as above (and ensure you have installed the dependencies)
 2. Run `build.bat`
 3. You will find the exe in the dist folder
 
