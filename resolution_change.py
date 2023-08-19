@@ -20,6 +20,10 @@ class ResolutionChanger:
         self._update_display_devices()
 
     def _update_display_devices(self):
+        """
+        Enumerates the displays on this machine and updates the local variable with the information.
+        :return:
+        """
         self.displays = {}
         i = 0
         while True:
@@ -31,24 +35,44 @@ class ResolutionChanger:
                         'device': d,
                         'settings': win32api.EnumDisplaySettings(d.DeviceName, win32con.ENUM_CURRENT_SETTINGS)
                     }
-                i += 1
             except pywintypes.error as e:
                 break
+            finally:
+                i += 1
 
     def _get_primary_display_name(self):
-        for (display_name, details_map) in self.displays.items():
-            device = details_map['device']
-            primary = device.StateFlags & win32con.DISPLAY_DEVICE_PRIMARY_DEVICE == win32con.DISPLAY_DEVICE_PRIMARY_DEVICE
-            if primary:
+        """
+        Loops through the connected displays and finds the primary display.
+        Requires self._update_display_devices() to have been called first.
+        :return:
+        """
+        for display_name in self.displays.keys():
+            if self.is_primary(display_name):
                 return display_name
         return None
 
+    def is_enabled(self, display_name):
+        details_map = self.displays[display_name]
+        device = details_map['device']
+        enabled = device.StateFlags & win32con.DISPLAY_DEVICE_ATTACHED_TO_DESKTOP == win32con.DISPLAY_DEVICE_ATTACHED_TO_DESKTOP
+        return enabled
+
+    def is_primary(self, display_name):
+        details_map = self.displays[display_name]
+        device = details_map['device']
+        primary = device.StateFlags & win32con.DISPLAY_DEVICE_PRIMARY_DEVICE == win32con.DISPLAY_DEVICE_PRIMARY_DEVICE
+        return primary
+
     def print_display_details(self):
+        """
+        Loops through the connected displays and prints info about each display
+        Requires self._update_display_devices() to have been called first.
+        :return:
+        """
         for (display_name, details_map) in self.displays.items():
-            device = details_map['device']
             settings = details_map['settings']
-            enabled = device.StateFlags & win32con.DISPLAY_DEVICE_ATTACHED_TO_DESKTOP == win32con.DISPLAY_DEVICE_ATTACHED_TO_DESKTOP
-            primary = device.StateFlags & win32con.DISPLAY_DEVICE_PRIMARY_DEVICE == win32con.DISPLAY_DEVICE_PRIMARY_DEVICE
+            enabled = self.is_enabled(display_name)
+            primary = self.is_primary(display_name)
             width = "NOT SET"
             height = "NOT SET"
             if settings:
@@ -56,15 +80,19 @@ class ResolutionChanger:
                 height = settings.PelsHeight
             print(f"Display name: {display_name} -  Enabled: {enabled}, Primary: {primary} - {width}x{height}")
 
-    def change_display(self, target_display, new_width, new_height, new_refresh_rate=None, set_primary=False):
+    def change_display(self, target_display, new_width, new_height, new_refresh_rate=None, detach_others=False):
+        """
+        Changes the given display to the given width/height/refresh rate and sets it to primary.
+        Requires self._update_display_devices() to have been called first.
+        """
+        set_primary = False
+
         if target_display == "primary":
             target_display = self._get_primary_display_name()
 
-        pos = None
-        if pos is None:
-            pos = (
-                self.displays[target_display]['settings'].Position_x,
-                self.displays[target_display]['settings'].Position_y)
+        pos = (
+            self.displays[target_display]['settings'].Position_x,
+            self.displays[target_display]['settings'].Position_y)
 
         if new_refresh_rate is None:
             print("Switching resolution to {0}x{1}".format(new_width, new_height))
@@ -84,9 +112,32 @@ class ResolutionChanger:
 
         win32api.ChangeDisplaySettingsEx(
             target_display, devmode, win32con.CDS_SET_PRIMARY if set_primary else 0)
-        pass
+
+        if detach_others:
+            for display_name in self.displays.keys():
+                if display_name != target_display:
+                    self.detach_display(display_name)
+
+    def detach_display(self, target_display):
+        """
+        Changes the given display to the given width/height/refresh rate and sets it to primary.
+        Requires self._update_display_devices() to have been called first.
+        """
+        if target_display == "primary":
+            target_display = self._get_primary_display_name()
+
+        devmode = win32api.EnumDisplaySettings(target_display, win32con.ENUM_CURRENT_SETTINGS)
+        devmode.PelsWidth = 0
+        devmode.PelsHeight = 0
+        devmode.Fields = win32con.DM_PELSWIDTH | win32con.DM_PELSHEIGHT | win32con.DM_POSITION
+
+        win32api.ChangeDisplaySettingsEx(target_display, devmode)
 
     def reset_resolutions(self):
+        """
+        Resets the resolution of all monitors
+        :return:
+        """
         print("Resetting resolution")
         win32api.ChangeDisplaySettings(None, 0)
         print("Reset to:")
@@ -111,11 +162,17 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--display', default='primary', type=str, required=False,
                         help=r'Which display to use e.g. \\.\DISPLAY1 (defaults to current primary)')
 
+    parser.add_argument('--detach-other-monitors', default=False, action="store_true",
+                       help="Detach other monitors except the named one")
+
     group.add_argument('-p', '--preset', type=str, required=False,
                        help=f'A preset to use can be one of: {PRESETS.keys()}')
 
     group.add_argument('-r', '--reset', default=False, action="store_true",
                        help='Reset the resolution that a previous run has changed')
+
+    group.add_argument('--detach-monitor', default=False, action="store_true",
+                       help="Detach the named display")
 
     parser.add_argument('--wait', type=int, default=5,
                         help="Time in seconds to wait after changing resolution before exiting")
@@ -135,12 +192,16 @@ if __name__ == "__main__":
         exit(-1)
     else:
         if args.width:
-            resolution_changer.change_display(args.display, args.width, args.height, args.refreshrate)
+            resolution_changer.change_display(args.display, args.width, args.height, args.refreshrate,
+                                              args.detach_other_monitors)
         elif args.preset:
             (width, height) = PRESETS.get(args.preset)
-            resolution_changer.change_display(args.display, width, height, args.refreshrate)
+            resolution_changer.change_display(args.display, width, height, args.refreshrate,
+                                              args.detach_other_monitors)
         elif args.reset:
             resolution_changer.reset_resolutions()
+        elif args.detach_monitor:
+            resolution_changer.detach_display(args.display)
         else:
             print("Unexpected options")
             parser.print_help()

@@ -25,7 +25,8 @@ If this helps you please consider buying me a coffee as a token of appreciation.
 ```
 usage: resolution_change.py [-h] [-l] [--width WIDTH] [--height HEIGHT]
                             [--refreshrate REFRESHRATE] [-d DISPLAY]
-                            [-p PRESET] [-r] [--wait WAIT] [--debug]
+                            [--detach-other-monitors] [-p PRESET] [-r]
+                            [--detach-monitor] [--wait WAIT] [--debug]
 
 Changes monitor resolution
 
@@ -37,20 +38,31 @@ options:
   --refreshrate REFRESHRATE
                         The refresh rate in hertz
   -d DISPLAY, --display DISPLAY
-                        Which display to use e.g. \\.\DISPLAY1 (defaults to current primary)
+                        Which display to use e.g. \\.\DISPLAY1 (defaults to
+                        current primary)
+  --detach-other-monitors
+                        Detach other monitors except the named one
   -p PRESET, --preset PRESET
                         A preset to use can be one of: 4k, 2k, 1080p, 720p
   -r, --reset           Reset the resolution that a previous run has changed
-  --wait WAIT           Time in seconds to wait after changing resolution before exiting
-  --debug               Enable debug mode so the program won't exit after running
+  --detach-monitor      Detach the named display
+  --wait WAIT           Time in seconds to wait after changing resolution
+                        before exiting
+  --debug               Enable debug mode so the program won't exit after
+                        running
 ```
 
 You can list out displays on your machine using `-l` or `--list-displays` this will show the current enabled displays
 
 By default, the primary monitor's resolution will be changed. You can target resolution changes to a particular display using `-d` or `--display` e.g. `resolution_change.exe --width 1920 --height 1080 -d "\\.\DISPLAY2"`
 
-Not all of these have been tested please raise an issue if you find any.
+You can detach all other monitors using `--detach-other-monitors`
 
+Or you can just detach a named monitor using `--detact-monitor`
+
+To return your settings back to normal call `--reset`
+
+Not all of these have been tested please raise an issue if you find any.
 
 ## Development
 
