@@ -79,7 +79,7 @@ class ResolutionChanger:
         devmode.Fields = win32con.DM_PELSWIDTH | win32con.DM_PELSHEIGHT | win32con.DM_POSITION
 
         if new_refresh_rate is not None:
-            devmode.DisplayFrequency = new_refresh_rate
+            devmode.DisplayFrequency = int(new_refresh_rate)
             devmode.Fields |= win32con.DM_DISPLAYFREQUENCY
 
         win32api.ChangeDisplaySettingsEx(
