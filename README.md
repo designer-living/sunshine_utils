@@ -43,7 +43,7 @@ options:
   --detach-other-monitors
                         Detach other monitors except the named one
   -p PRESET, --preset PRESET
-                        A preset to use can be one of: 4k, 2k, 1080p, 720p
+                        A preset to use can be one of: 4k, 2k, 1080p, 800p, 720p
   -r, --reset           Reset the resolution that a previous run has changed
   --detach-monitor      Detach the named display
   --wait WAIT           Time in seconds to wait after changing resolution
